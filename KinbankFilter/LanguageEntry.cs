@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace de.ericvogt.KinbankFilter
 {
-    class LanguageEntry
+    public class LanguageEntry
     {
         private static LanguageEntry _instance = null;
         public static LanguageEntry Instance => _instance ?? (_instance = new LanguageEntry());
@@ -25,7 +25,6 @@ namespace de.ericvogt.KinbankFilter
         public string SrcBibtex { get; set; }
         public string Comment { get; set; }
         private List<LanguageEntry> EntryList { get; set; }
-
 
         private LanguageEntry()
         {
@@ -70,55 +69,17 @@ namespace de.ericvogt.KinbankFilter
         /// <param name="tokenList">Filter Tokens List</param>
         public void FilterData(List<string> tokenList)
         {
+            if (tokenList[0] == "*")
+            {
+                return;
+            }
+
             var filteredList = (from token in tokenList
                 from entry in EntryList
                 where !entry.Parameter.Equals(SEARCH_ATTR) & entry.Parameter.Equals(token)
                 select entry).ToList();
 
             EntryList = filteredList;
-        }
-
-        public DataTable FormatToDataTable<T>(IList<T> data)
-        {
-            var table = new DataTable();
-
-            if (typeof(T).IsValueType || typeof(T) == typeof(string))
-            {
-
-                var dc = new DataColumn("Value");
-                table.Columns.Add(dc);
-                foreach (T item in data)
-                {
-                    DataRow dr = table.NewRow();
-                    dr[0] = item;
-                    table.Rows.Add(dr);
-                }
-            }
-            else
-            {
-                var properties = TypeDescriptor.GetProperties(typeof(T));
-                foreach (PropertyDescriptor prop in properties)
-                {
-                    table.Columns.Add(prop.Name, Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType);
-                }
-                foreach (var item in data)
-                {
-                    var row = table.NewRow();
-                    foreach (PropertyDescriptor prop in properties)
-                    {
-                        try
-                        {
-                            row[prop.Name] = prop.GetValue(item) ?? DBNull.Value;
-                        }
-                        catch (Exception ex)
-                        {
-                            row[prop.Name] = DBNull.Value;
-                        }
-                    }
-                    table.Rows.Add(row);
-                }
-            }
-            return table;
         }
     }
 }

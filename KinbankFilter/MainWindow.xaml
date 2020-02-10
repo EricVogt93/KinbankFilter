@@ -33,11 +33,13 @@
         <Label Grid.Row="3" Grid.Column="1"
                Content="Output Path (Data must end with '.xlsx'):"/>
         <Label Grid.Row="5" Grid.Column="1"
-               Content="Filtertoken (comma seperated):"/>
+               Content="Filtertoken (comma separated / * for all entries):"/>
 
         <TextBox Grid.Row="1" Grid.Column="3" VerticalContentAlignment="Center" Name="TB_InputPath"/>
         <TextBox Grid.Row="3" Grid.Column="3" VerticalContentAlignment="Center" Name="TB_OutputPath"/>
         <TextBox Grid.Row="5" Grid.Column="3" VerticalContentAlignment="Center" Name="TB_Filtertoken"/>
+
+        <Image x:Name="ImageResponse" Grid.Row="9" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" />
 
         <Button Grid.Row="9" Grid.Column="3" Content="Filter" Click="Button_Click" />
     </Grid>

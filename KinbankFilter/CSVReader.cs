@@ -6,29 +6,26 @@ using System.Windows.Documents;
 
 namespace de.ericvogt.KinbankFilter
 {
-    class CSVReader
+    static class CSVReader
     {
-        private string FilePath { get; set; }
         private const string CSV_EXT = "*.csv";
-        private IEnumerable<string> FilesEnumerable { get; set; }
-        
-
-        public CSVReader(string filepath)
-        {
-            FilePath = filepath;
-            RecurFileSearch();
-        }
+        private static IEnumerable<string> FilesEnumerable { get; set; }
 
         /// <summary>
         /// Returns all Files in Folder recursive.
         /// </summary> 
-        private void RecurFileSearch()
+        private static void RecurFileSearch(string filepath)
         {
-            FilesEnumerable = Directory.GetFiles(FilePath, CSV_EXT, SearchOption.AllDirectories).ToList();
+            FilesEnumerable = Directory.GetFiles(filepath, CSV_EXT, SearchOption.AllDirectories).ToList();
         }
 
-        public void ReadFiles()
+        /// <summary>
+        /// Reads Files from Path.
+        /// </summary>
+        /// <param name="filepath">Read files from path</param>
+        public static void ReadFiles(string filepath)
         {
+            RecurFileSearch(filepath);
             foreach (var file in FilesEnumerable)
             {
                 using (var reader = new StreamReader(file))
@@ -44,7 +41,5 @@ namespace de.ericvogt.KinbankFilter
                 }
             }
         }
-
-
     }
 }
