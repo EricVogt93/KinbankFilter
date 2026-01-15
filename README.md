@@ -1,5 +1,7 @@
 # KinbankFilter
 
+[![Build](https://github.com/EricVogt93/KinbankFilter/actions/workflows/build.yml/badge.svg)](https://github.com/EricVogt93/KinbankFilter/actions)
+
 A lightweight Windows tool for filtering and exporting data from the [Kinbank](https://github.com/SimonGreenhill/kinbank) database.
 
 ![Screenshot](screenshot.png)
@@ -51,7 +53,20 @@ Download the latest `KinbankFilter.exe` from [Releases](../../releases).
 - Windows with .NET Framework 4.7.2
 - Kinbank raw data files (CSV format)
 
-## Build
+## Development
+
+### AI Assistant
+
+This repository has Claude AI integrated for issue management. You can mention `@claude` in GitHub issues and pull requests to get AI assistance with:
+
+- Bug investigation and analysis
+- Code suggestions and reviews
+- Documentation improvements
+- Feature implementation guidance
+
+### Build
+
+The project uses GitHub Actions for automated builds on every push and pull request.
 
 **Option 1: Visual Studio**
 
