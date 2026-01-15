@@ -1,20 +1,10 @@
-﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace de.ericvogt.KinbankFilter
 {
     public class LanguageEntry
     {
-        private static LanguageEntry _instance = null;
-        public static LanguageEntry Instance => _instance ?? (_instance = new LanguageEntry());
-        public const string SEARCH_ATTR = "parameter";
-
         public string Name { get; set; }
         public string Parameter { get; set; }
         public string Word { get; set; }
@@ -24,24 +14,28 @@ namespace de.ericvogt.KinbankFilter
         public string SrcRaw { get; set; }
         public string SrcBibtex { get; set; }
         public string Comment { get; set; }
-        private List<LanguageEntry> EntryList { get; set; }
+    }
 
-        private LanguageEntry()
+    public class LanguageEntryService
+    {
+        private const string HeaderParameter = "parameter";
+        private const string WildcardToken = "*";
+
+        private List<LanguageEntry> _entries = new List<LanguageEntry>();
+
+        public void Clear()
         {
-            EntryList = new List<LanguageEntry>();
+            _entries.Clear();
         }
 
-        /// <summary>
-        /// Generates a Language Entry
-        /// </summary>
-        /// <param name="lang">File- / Languagename</param>
-        /// <param name="data">List with data.</param>
-        public void GenerateLanguageEntry(string lang, IReadOnlyList<string> data)
+        public void AddEntry(string languageName, IReadOnlyList<string> data)
         {
-            if (data.Count != 8) return;
-            var entry = new LanguageEntry()
+            if (data.Count != 8)
+                return;
+
+            var entry = new LanguageEntry
             {
-                Name = lang,
+                Name = languageName,
                 Parameter = data[0],
                 Word = data[1],
                 Ipa = data[2],
@@ -51,35 +45,26 @@ namespace de.ericvogt.KinbankFilter
                 SrcBibtex = data[6],
                 Comment = data[7]
             };
-            EntryList.Add(entry);
+
+            _entries.Add(entry);
         }
 
-        /// <summary>
-        /// Returns Entrylist since List should not be visible to other classes.
-        /// </summary>
-        /// <returns>List with Entries</returns>
-        public List<LanguageEntry> GetData()
+        public List<LanguageEntry> GetEntries()
         {
-            return EntryList;
+            return _entries;
         }
 
-        /// <summary>
-        /// Filter Data with a List of Tokens
-        /// </summary>
-        /// <param name="tokenList">Filter Tokens List</param>
-        public void FilterData(List<string> tokenList)
+        public void FilterByTokens(IReadOnlyList<string> tokens)
         {
-            if (tokenList[0] == "*")
-            {
+            if (tokens == null || tokens.Count == 0)
                 return;
-            }
 
-            var filteredList = (from token in tokenList
-                from entry in EntryList
-                where !entry.Parameter.Equals(SEARCH_ATTR) & entry.Parameter.Equals(token)
-                select entry).ToList();
+            if (tokens[0] == WildcardToken)
+                return;
 
-            EntryList = filteredList;
+            _entries = _entries
+                .Where(e => !e.Parameter.Equals(HeaderParameter) && tokens.Contains(e.Parameter))
+                .ToList();
         }
     }
 }

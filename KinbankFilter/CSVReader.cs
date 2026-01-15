@@ -1,43 +1,39 @@
-﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Windows.Documents;
 
 namespace de.ericvogt.KinbankFilter
 {
-    static class CSVReader
+    public static class CsvReader
     {
-        private const string CSV_EXT = "*.csv";
-        private static IEnumerable<string> FilesEnumerable { get; set; }
+        private const string CsvExtension = "*.csv";
 
-        /// <summary>
-        /// Returns all Files in Folder recursive.
-        /// </summary> 
-        private static void RecurFileSearch(string filepath)
+        public static void ReadFiles(string directoryPath, LanguageEntryService service)
         {
-            FilesEnumerable = Directory.GetFiles(filepath, CSV_EXT, SearchOption.AllDirectories).ToList();
+            var files = GetCsvFiles(directoryPath);
+
+            foreach (var file in files)
+            {
+                ReadFile(file, service);
+            }
         }
 
-        /// <summary>
-        /// Reads Files from Path.
-        /// </summary>
-        /// <param name="filepath">Read files from path</param>
-        public static void ReadFiles(string filepath)
+        private static IEnumerable<string> GetCsvFiles(string directoryPath)
         {
-            RecurFileSearch(filepath);
-            foreach (var file in FilesEnumerable)
+            return Directory.GetFiles(directoryPath, CsvExtension, SearchOption.AllDirectories);
+        }
+
+        private static void ReadFile(string filePath, LanguageEntryService service)
+        {
+            var languageName = Path.GetFileNameWithoutExtension(filePath);
+
+            using (var reader = new StreamReader(filePath))
             {
-                using (var reader = new StreamReader(file))
+                string line;
+                while ((line = reader.ReadLine()) != null)
                 {
-                    string line;
-                    while((line = reader.ReadLine()) != null)
-                    {
-                        var dataList = line.SplitLine();
-                        var entry = LanguageEntry.Instance;
-                        var fileName = Path.GetFileNameWithoutExtension(file);
-                        entry.GenerateLanguageEntry(fileName, dataList.ToList());
-                    }
+                    var data = line.SplitLine().ToList();
+                    service.AddEntry(languageName, data);
                 }
             }
         }

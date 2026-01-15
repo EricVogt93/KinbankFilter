@@ -1,88 +1,63 @@
-﻿using System;
-using System.Collections;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Data;
-using System.IO;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using ClosedXML.Excel;
-using de.ericvogt.KinbankFilter;
 
 namespace de.ericvogt.KinbankFilter
 {
     public class FileWriter
     {
-        private string _savepath;
-        private string _sheetname;
-        private DataTable _dataTable;
-        public FileWriter(string savepath, IEnumerable<LanguageEntry> dataEnumerable, string sheetname= "DATA")
+        private readonly string _savePath;
+        private readonly string _sheetName;
+        private readonly DataTable _dataTable;
+
+        public FileWriter(string savePath, IEnumerable<LanguageEntry> entries, string sheetName = "DATA")
         {
-            _savepath = savepath;
-            _sheetname = sheetname;
-            _dataTable = new DataTable();
-            _dataTable = FormatToDataTable(dataEnumerable);
+            _savePath = savePath;
+            _sheetName = sheetName;
+            _dataTable = ConvertToDataTable(entries);
         }
 
-        /// <summary>
-        /// Formatting an Enumerable into a Datatable.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="data"></param>
-        /// <returns>Datatable</returns>
-        private DataTable FormatToDataTable(IEnumerable data)
+        public bool Save()
+        {
+            try
+            {
+                using (var workbook = new XLWorkbook())
+                {
+                    workbook.Worksheets.Add(_dataTable, _sheetName);
+                    workbook.SaveAs(_savePath);
+                }
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        private static DataTable ConvertToDataTable(IEnumerable<LanguageEntry> entries)
         {
             var table = new DataTable();
-
             var properties = TypeDescriptor.GetProperties(typeof(LanguageEntry));
+
             foreach (PropertyDescriptor prop in properties)
             {
-                table.Columns.Add(prop.Name, Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType);
+                var columnType = Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType;
+                table.Columns.Add(prop.Name, columnType);
             }
-            foreach (var item in data)
+
+            foreach (var entry in entries)
             {
                 var row = table.NewRow();
                 foreach (PropertyDescriptor prop in properties)
                 {
-                    try
-                    {
-                        row[prop.Name] = prop.GetValue(item) ?? DBNull.Value;
-                    }
-                    catch (Exception)
-                    {
-                        row[prop.Name] = DBNull.Value;
-                    }
+                    row[prop.Name] = prop.GetValue(entry) ?? DBNull.Value;
                 }
                 table.Rows.Add(row);
             }
-            return table;
-        }
 
-        /// <summary>
-        /// Saves the Data.
-        /// </summary>
-        public void Save()
-        {
-            try
-            {
-                var wb = new XLWorkbook();
-                wb.Worksheets.Add(_dataTable, _sheetname);
-                wb.SaveAs(_savepath);
-            }
-            catch (Exception)
-            {
-                // ignored
-            }
+            return table;
         }
     }
 }
