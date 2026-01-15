@@ -42,6 +42,10 @@ Kinbank uses a standardized notation for kinship relations. Common tokens includ
 
 See the [Kinbank documentation](https://github.com/SimonGreenhill/kinbank) for the complete list of kin types.
 
+## Download
+
+Download the latest `KinbankFilter.exe` from [Releases](../../releases).
+
 ## Requirements
 
 - Windows with .NET Framework 4.7.2
@@ -49,7 +53,16 @@ See the [Kinbank documentation](https://github.com/SimonGreenhill/kinbank) for t
 
 ## Build
 
-Open `KinbankFilter.sln` in Visual Studio and build the solution.
+**Option 1: Visual Studio**
+
+Open `KinbankFilter.sln` and build the solution.
+
+**Option 2: Command line**
+
+```bash
+nuget restore KinbankFilter.sln
+msbuild KinbankFilter/KinbankFilter.csproj /p:Configuration=Release
+```
 
 ## License
 
